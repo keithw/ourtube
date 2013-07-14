@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 
 /* port for server to listen for connections */
-const uint16_t listen_port = 80;
+const uint16_t listen_port = 8080;
 
 int main( void )
 {
@@ -16,10 +16,17 @@ int main( void )
   }
 
   /* make local address to listen on */
-  struct sockaddr_in port80;
-  port80.sin_family = AF_INET;
-  port80.sin_port = htons( listen_port );
-  port80.sin_addr.s_addr = INADDR_ANY;
+  struct sockaddr_in listen_addr;
+  listen_addr.sin_family = AF_INET;
+  listen_addr.sin_port = htons( listen_port );
+  listen_addr.sin_addr.s_addr = INADDR_ANY;
+
+  if ( bind( listener_socket,
+	     reinterpret_cast<sockaddr *>( &listen_addr ),
+	     sizeof( listen_addr ) ) < 0 ) {
+    perror( "bind" );
+    exit( EXIT_FAILURE );
+  }
 
   return 0;
 }
