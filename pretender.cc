@@ -79,7 +79,7 @@ int main( void )
 
 	if ( delivered_signal.ssi_signo == SIGCHLD ) {
 	  /* reap dead child */
-	  pid_t dead_child = waitpid( -1, NULL, WNOHANG );
+	  pid_t dead_child = waitpid( -1, NULL, 0 );
 	  if ( dead_child < 0 ) {
 	    throw Exception( "waitpid" );
 	  } else if ( dead_child > 0 ) {
