@@ -1,6 +1,8 @@
 #ifndef WRITEALL_HH
 #define WRITEALL_HH
 
-ssize_t writeall( const int fd, const char *buf, const size_t count );
+#include <string>
+
+void writeall( const int fd, const std::string buf );
 
 #endif /* WRITEALL_HH */

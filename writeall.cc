@@ -1,7 +1,11 @@
 #include <unistd.h>
 
+#include "writeall.hh"
+
+using namespace std;
+
 /* blocking write of entire buffer */
-ssize_t writeall( const int fd, const char *buffer, const size_t count )
+static ssize_t writeall( const int fd, const char *buffer, const size_t count )
 {
   size_t total_bytes_written = 0;
 
@@ -18,4 +22,12 @@ ssize_t writeall( const int fd, const char *buffer, const size_t count )
   }
 
   return total_bytes_written;
+}
+
+void writeall( const int fd, const string buf )
+{
+  if ( writeall( fd, buf.data(), buf.size() ) < 0 ) {
+    perror( "writeall" );
+    throw errno;
+  }
 }

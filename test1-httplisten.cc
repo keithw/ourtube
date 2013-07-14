@@ -4,8 +4,11 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <string>
 
 #include "writeall.hh"
+
+using namespace std;
 
 /* port for server to listen for connections */
 const uint16_t listen_port = 8080;
@@ -84,10 +87,7 @@ int main( void )
     } else {
       /* successful read */
       /* write to the terminal */
-      if ( writeall( STDOUT_FILENO, buffer, bytes_read ) < 0 ) {
-	perror( "writeall" );
-	exit( EXIT_FAILURE );
-      }
+      writeall( STDOUT_FILENO, string( buffer, bytes_read ) );
     }
   }
 

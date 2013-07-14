@@ -10,6 +10,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <string>
+
+#include "writeall.hh"
+
+using namespace std;
 
 int main( int argc, char *argv[] )
 {
@@ -66,9 +71,12 @@ int main( int argc, char *argv[] )
 
   /* we will connect to first address in list */
   struct sockaddr_in *address_ptr = reinterpret_cast<sockaddr_in *>( res->ai_addr );
-  fprintf( stderr, "Got an address: %s:%d\n",
-	   inet_ntoa( address_ptr->sin_addr ),
-	   ntohs( address_ptr->sin_port ) );
+  char human_readable_server_addr[ 128 ];
+  snprintf( human_readable_server_addr, 128, "%s:%d",
+	    inet_ntoa( address_ptr->sin_addr ),
+	    ntohs( address_ptr->sin_port ) );
+
+  fprintf( stderr, "Got an address: %s\n", human_readable_server_addr );
 
   /* create TCP socket */
   int connect_socket = socket( AF_INET, SOCK_STREAM, 0 );
@@ -84,7 +92,30 @@ int main( int argc, char *argv[] )
   }
 
   /* make an HTTP request */
-  
+  writeall( connect_socket, "GET / HTTP/1.1\n" );
+  writeall( connect_socket, "Host: "
+	    + string( human_readable_server_addr )
+	    + "\n\n" );
+
+  /* read and print the response */
+  while ( 1 ) {
+    const size_t buffer_size = 4096;
+    char buffer[ buffer_size ];
+
+    ssize_t bytes_read = read( connect_socket, &buffer, buffer_size );
+    if ( bytes_read == 0 ) {
+      /* end of file = server has closed their side of connection */
+      fprintf( stderr, "End of file, closing connection.\n" );
+      break;
+    } else if ( bytes_read < 0 ) {
+      perror( "read" );
+      break;
+    } else {
+      /* successful read */
+      /* write to the terminal */
+      writeall( STDOUT_FILENO, string( buffer, bytes_read ) );
+    }
+  }
 
   if ( close( connect_socket ) < 0 ) {
     perror( "close" );
