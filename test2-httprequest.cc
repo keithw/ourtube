@@ -30,8 +30,8 @@ int main( int argc, char *argv[] )
     server_socket.connect( server_address );
 
     /* make an HTTP request */
-    server_socket.write( "GET / HTTP/1.1\n" );
-    server_socket.write( string( "Host: " ) + hostname + ":" + num2str( server_address.port() ) + "\n\n" );
+    server_socket.write( "GET / HTTP/1.1\r\n" );
+    server_socket.write( string( "Host: " ) + hostname + ":" + to_string( server_address.port() ) + "\r\n\r\n" );
 
     /* read and print the response */
     while ( 1 ) {

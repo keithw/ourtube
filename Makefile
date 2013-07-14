@@ -1,6 +1,6 @@
-source = test1-httplisten.cc test2-httprequest.cc test3-serverclient.cc ezio.cc socket.cc address.cc
+source = test1-httplisten.cc test2-httprequest.cc test3-serverclient.cc ezio.cc socket.cc address.cc http_parser.cc
 
-objects = ezio.o socket.o address.o
+objects = ezio.o socket.o address.o http_parser.o
 
 executables = test1-httplisten test2-httprequest test3-serverclient
 
