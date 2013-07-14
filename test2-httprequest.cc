@@ -77,10 +77,14 @@ int main( int argc, char *argv[] )
     exit( EXIT_FAILURE );
   }
 
+  /* connect to server */
   if ( connect( connect_socket, res->ai_addr, res->ai_addrlen ) < 0 ) {
     perror( "connect" );
     exit( EXIT_FAILURE );
   }
+
+  /* make an HTTP request */
+  
 
   if ( close( connect_socket ) < 0 ) {
     perror( "close" );

@@ -5,6 +5,8 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+#include "writeall.hh"
+
 /* port for server to listen for connections */
 const uint16_t listen_port = 8080;
 
@@ -82,19 +84,9 @@ int main( void )
     } else {
       /* successful read */
       /* write to the terminal */
-      ssize_t total_bytes_written = 0;
-
-      while ( total_bytes_written < bytes_read ) {
-	ssize_t bytes_written = write( STDOUT_FILENO,
-				       buffer + total_bytes_written,
-				       bytes_read - total_bytes_written );
-
-	if ( bytes_written < 0 ) {
-	  perror( "write" );
-	  exit( EXIT_FAILURE );
-	} else {
-	  total_bytes_written += bytes_written;
-	}
+      if ( writeall( STDOUT_FILENO, buffer, bytes_read ) < 0 ) {
+	perror( "writeall" );
+	exit( EXIT_FAILURE );
       }
     }
   }
