@@ -1,0 +1,29 @@
+* Overall goal: accurately/fairly measure YouTube vs. Alfalfa
+
+**  Subgoal: isolate YouTube
+
+*** Make a local server that behaves just like YouTube
+
+**** Make a Web server proxy all requests to YouTube
+**** and responses back to client
+
+***** Write an HTTP listener that gets the request from the browser.
+***** Standalone program.
+
+***** Write an HTTP client that fetches a resource from YouTube.
+***** Standalone program.
+
+***** Join the two together.
+
+**** Download all the resources that YouTube is using
+
+**** Modify proxy so it answers requests using local resources
+**** but still fetches what it was going to fetch from YouTube
+**** and compares the two
+
+**** If there are kinds of requests that are not so easy, figure
+**** these out one by one.
+
+**** IF there are some requests we can't figure out while treating
+**** client as a black-box, THEN open the box.
+
