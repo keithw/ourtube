@@ -1,8 +1,8 @@
-source = test1-httplisten.cc
+source = test1-httplisten.cc test2-httprequest.cc
 
 objects =
 
-executables = test1-httplisten
+executables = test1-httplisten test2-httprequest
 
 CXX = g++
 CXXFLAGS = -g -O3 -std=c++0x -pedantic -Werror -Wall -Wextra \
@@ -12,6 +12,9 @@ LIBS =
 all: $(executables)
 
 test1-httplisten: test1-httplisten.o $(objects)
+	$(CXX) $(CXXFLAGS) -o $@ $+ $(LIBS)
+
+test2-httprequest: test2-httprequest.o $(objects)
 	$(CXX) $(CXXFLAGS) -o $@ $+ $(LIBS)
 
 %.o: %.cc
