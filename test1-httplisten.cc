@@ -1,4 +1,4 @@
-#include "writeall.hh"
+#include "ezio.hh"
 #include "socket.hh"
 #include "exception.hh"
 
@@ -28,9 +28,7 @@ int main( void )
     /* read the request from the client */
     while ( 1 ) {
       string buffer = client_socket.read();
-      if ( buffer.empty() ) {
-	break;
-      }
+      if ( buffer.empty() ) { break; } /* EOF */
       writeall( STDOUT_FILENO, buffer );
     }
   } catch ( Exception &e ) {

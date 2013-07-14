@@ -1,4 +1,4 @@
-#include "writeall.hh"
+#include "ezio.hh"
 #include "address.hh"
 #include "socket.hh"
 #include "exception.hh"
@@ -30,14 +30,13 @@ int main( int argc, char *argv[] )
     server_socket.connect( server_address );
 
     /* make an HTTP request */
-    writeall( server_socket.fd(), "GET / HTTP/1.1\n" );
-    writeall( server_socket.fd(), "Host: "
-	      + server_address.str()
-	      + "\n\n" );
+    server_socket.write( "GET / HTTP/1.1\n" );
+    server_socket.write( "Host: " + server_address.str() + "\n\n" );
 
     /* read and print the response */
     while ( 1 ) {
       string buffer = server_socket.read();
+      if ( buffer.empty() ) { break; } /* EOF */
       writeall( STDOUT_FILENO, buffer );
     }
   } catch ( Exception &e ) {
