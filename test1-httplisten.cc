@@ -22,7 +22,6 @@ int main( void )
 
     /* bind socket */
     listener_socket.bind( Address( "0", listen_service ) );
-
     fprintf( stderr, "Bound to %s.\n", listener_socket.local_addr().str().c_str() );
 
     /* mark the socket for listening */
@@ -30,29 +29,16 @@ int main( void )
 
     /* wait for client connection */
     Socket client_socket = listener_socket.accept();
-
-    /* we got a successful connection */
     fprintf( stderr, "Got connection from %s.\n",
 	     client_socket.peer_addr().str().c_str() );
 
     /* read the request from the client */
     while ( 1 ) {
-      const size_t buffer_size = 4096;
-      char buffer[ buffer_size ];
-
-      ssize_t bytes_read = read( client_socket.fd(), &buffer, buffer_size );
-      if ( bytes_read == 0 ) {
-	/* end of file = client has closed their side of connection */
-	fprintf( stderr, "End of file, closing connection.\n" );
+      string buffer = client_socket.read();
+      if ( buffer.empty() ) {
 	break;
-      } else if ( bytes_read < 0 ) {
-	perror( "read" );
-	break;
-      } else {
-	/* successful read */
-	/* write to the terminal */
-	writeall( STDOUT_FILENO, string( buffer, bytes_read ) );
       }
+      writeall( STDOUT_FILENO, buffer );
     }
 
     fprintf( stderr, "Successful exit.\n" );
