@@ -56,7 +56,7 @@ int main( void )
 
       if ( pollfds[ 0 ].revents & POLLIN ) { /* new client has connected */
 	Socket client_socket = listener_socket.accept();
-	fprintf( stderr, "Got connection from %s.\n", client_socket.peer_addr().str().c_str() );
+	//	fprintf( stderr, "Got connection from %s.\n", client_socket.peer_addr().str().c_str() );
 
 	/* fork client handler */
 	pid_t pid_of_child = fork();
@@ -67,7 +67,7 @@ int main( void )
 	  HTTPHandler handler( client_socket );
 	  handler.handle_request();
 
-	  fprintf( stderr, "Child process %d exiting now.\n", getpid() );
+	  //	  fprintf( stderr, "Child process %d exiting now.\n", getpid() );
 	  exit( EXIT_SUCCESS );
 	}
       }
@@ -86,7 +86,7 @@ int main( void )
 	  if ( dead_child < 0 ) {
 	    throw Exception( "waitpid" );
 	  } else if ( dead_child > 0 ) {
-	    fprintf( stderr, "Waited for child pid=%d\n", dead_child );
+	    //	    fprintf( stderr, "Waited for child pid=%d\n", dead_child );
 	  }
 	}
       }

@@ -11,6 +11,12 @@ void HTTPHandler::handle_request( void )
     /* parse up to the host header */
     read_request_up_to_host_header();
 
+    if ( !parser_.has_header( "Host" ) ) {
+      /* there was no host header */
+      /* ignore request and close connection */
+      return;
+    }
+
     /* open connection to server */
     connect_to_server();
 
@@ -34,7 +40,7 @@ void HTTPHandler::read_request_up_to_host_header( void )
     pending_client_to_server_ += buffer;
 
     parser_.parse( buffer );
-    if ( parser_.has_header( "Host" ) ) {
+    if ( parser_.has_header( "Host" ) || parser_.headers_parsed() ) {
       /* found it */
       return;
     }
@@ -59,19 +65,20 @@ void HTTPHandler::connect_to_server( void )
   }
 
   Address server_addr( host, service );
+  /*
   fprintf( stderr, "Opening connection to %s... ",
 	   server_addr.str().c_str() );
+  */
 
   server_socket_.connect( server_addr );
 
-  fprintf( stderr, "done.\n" );
+  //  fprintf( stderr, "done.\n" );
 }
 
 void HTTPHandler::two_way_connection( void )
 {
   struct pollfd pollfds[ 2 ];
   pollfds[ 0 ].fd = client_socket_.raw_fd();
-  
   pollfds[ 1 ].fd = server_socket_.raw_fd();
 
   while ( 1 ) {
