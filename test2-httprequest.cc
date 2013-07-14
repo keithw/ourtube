@@ -11,26 +11,6 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-/* Convert string to integer with error checking */
-long int myatoi( const char *str )
-{
-  char *end;
-
-  errno = 0;
-  long int ret = strtol( str, &end, 10 );
-
-  if ( ( errno != 0 )
-       || ( end != str + strlen( str ) ) ) {
-    fprintf( stderr, "Bad integer [%s].\n", str );
-    exit( EXIT_FAILURE );
-  }
-
-  return ret;
-}
-
-/* what port we want */
-const char service[] = "http";
-
 int main( int argc, char *argv[] )
 {
   /* check arguments */
@@ -38,20 +18,12 @@ int main( int argc, char *argv[] )
     fprintf( stderr, "ERROR: argv[ 0 ] not provided.\n" );
     exit( EXIT_FAILURE );
   } else if ( argc != 3 ) {
-    fprintf( stderr, "Usage: %s HOSTNAME PORT\n", argv[ 0 ] );
+    fprintf( stderr, "Usage: %s HOSTNAME SERVICE\n", argv[ 0 ] );
     exit( EXIT_FAILURE );
   }
 
   const char *hostname = argv[ 1 ];
-  const char *port = argv[ 2 ];
-
-  /* first, convert the port */
-  const long int port_integer = myatoi( port );
-
-  if ( (port_integer <= 0) || port_integer > USHRT_MAX ) {
-    fprintf( stderr, "Bad port number [%ld].\n", port_integer );
-    exit( EXIT_FAILURE );
-  }
+  const char *service = argv[ 2 ];
 
   fprintf( stderr, "Looking up %s... \n", hostname );
 
@@ -74,33 +46,47 @@ int main( int argc, char *argv[] )
   }
 
   if ( res == NULL ) {
+    /* shouldn't be able to happen */
     fprintf( stderr, "Error: no addresses returned.\n" );
     exit( EXIT_FAILURE );
   }
+  
+  /* make sure it's an Internet address */
+  if ( res->ai_family != AF_INET ) {
+    fprintf( stderr, "Bad family.\n" );
+    exit( EXIT_FAILURE );
+  } else if ( res->ai_socktype != SOCK_STREAM ) {
+    fprintf( stderr, "Bad socket type.\n" );
+    exit( EXIT_FAILURE );
+  } else if ( res->ai_addrlen != sizeof( struct sockaddr_in ) ) {
+    fprintf( stderr, "ERROR, res->ai_addrlen = %d, expected %lu.\n",
+	     res->ai_addrlen, sizeof( struct sockaddr_in ) );
+    exit( EXIT_FAILURE );
+  }
 
-  /* print out the addresses */
-  while ( res ) {
-    /* print out the first one */
-    /* make sure it's an Internet address */
-    if ( res->ai_family != AF_INET ) {
-      fprintf( stderr, "Bad family.\n" );
-      exit( EXIT_FAILURE );
-    } else if ( res->ai_socktype != SOCK_STREAM ) {
-      fprintf( stderr, "Bad socket type.\n" );
-      exit( EXIT_FAILURE );
-    } else if ( res->ai_addrlen != sizeof( struct sockaddr_in ) ) {
-      fprintf( stderr, "ERROR, res->ai_addrlen = %d, expected %lu.\n",
-	       res->ai_addrlen, sizeof( struct sockaddr_in ) );
-      exit( EXIT_FAILURE );
-    }
+  /* we will connect to first address in list */
+  struct sockaddr_in *address_ptr = reinterpret_cast<sockaddr_in *>( res->ai_addr );
+  fprintf( stderr, "Got an address: %s:%d\n",
+	   inet_ntoa( address_ptr->sin_addr ),
+	   ntohs( address_ptr->sin_port ) );
 
-    struct sockaddr_in *address_ptr = reinterpret_cast<sockaddr_in *>( res->ai_addr );
-    fprintf( stderr, "Got an address: %s\n", inet_ntoa( address_ptr->sin_addr ) );
+  /* create TCP socket */
+  int connect_socket = socket( AF_INET, SOCK_STREAM, 0 );
+  if ( connect_socket < 0 ) {
+    perror( "socket" );
+    exit( EXIT_FAILURE );
+  }
 
-    res = res->ai_next;
+  if ( connect( connect_socket, res->ai_addr, res->ai_addrlen ) < 0 ) {
+    perror( "connect" );
+    exit( EXIT_FAILURE );
+  }
+
+  if ( close( connect_socket ) < 0 ) {
+    perror( "close" );
+    exit( EXIT_FAILURE );
   }
 
   freeaddrinfo( res );
-
   return 0;
 }

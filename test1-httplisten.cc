@@ -102,13 +102,13 @@ int main( void )
   /* close client socket */
   if ( close( client_socket ) < 0 ) {
     perror( "close" );
-    exit( 0 );
+    exit( EXIT_FAILURE );
   }
 
   /* close listen socket */
   if ( close( listener_socket ) < 0 ) {
     perror( "close" );
-    exit( 0 );
+    exit( EXIT_FAILURE );
   }
 
   fprintf( stderr, "Successful exit.\n" );
