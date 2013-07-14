@@ -23,6 +23,7 @@ public:
   void die( void )
   {
     std::cerr << "Exception: " << attempt_ << ": " << error_ << std::endl;
+    std::cerr << "Exiting on error.\n";
     exit( EXIT_FAILURE );
   }
 };
