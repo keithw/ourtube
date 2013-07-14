@@ -1,9 +1,17 @@
 #include <unistd.h>
+#include <sstream>
 
 #include "ezio.hh"
 #include "exception.hh"
 
 using namespace std;
+
+string num2str( const int num )
+{
+  ostringstream ret;
+  ret << num;
+  return ret.str();
+}
 
 /* blocking write of entire buffer */
 void writeall( const int fd, const string & buf )
@@ -23,6 +31,7 @@ void writeall( const int fd, const string & buf )
   }
 }
 
+/* read available bytes */
 static const size_t read_chunk_size = 4096;
 
 std::string readall( const int fd )

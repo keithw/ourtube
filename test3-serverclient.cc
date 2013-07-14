@@ -1,4 +1,3 @@
-#include "ezio.hh"
 #include "socket.hh"
 #include "exception.hh"
 
@@ -10,7 +9,7 @@ const string listen_service = "http-alt";
 int main( void )
 {
   try {
-    /* create TCP socket */
+    /* create listener socket */
     Socket listener_socket;
 
     /* bind socket */
@@ -20,17 +19,17 @@ int main( void )
     /* mark the socket for listening */
     listener_socket.listen();
 
-    /* wait for client connection */
+    /* wait for client */
     Socket client_socket = listener_socket.accept();
-    fprintf( stderr, "Got connection from %s.\n",
-	     client_socket.peer_addr().str().c_str() );
 
     /* read the request from the client */
-    while ( 1 ) {
+    while( 1 ) {
       string buffer = client_socket.read();
       if ( buffer.empty() ) { break; } /* EOF */
-      writeall( STDOUT_FILENO, buffer );
+      
+      
     }
+
   } catch ( Exception &e ) {
     e.die();
   }

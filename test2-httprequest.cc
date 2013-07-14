@@ -31,7 +31,7 @@ int main( int argc, char *argv[] )
 
     /* make an HTTP request */
     server_socket.write( "GET / HTTP/1.1\n" );
-    server_socket.write( "Host: " + server_address.str() + "\n\n" );
+    server_socket.write( string( "Host: " ) + hostname + ":" + num2str( server_address.port() ) + "\n\n" );
 
     /* read and print the response */
     while ( 1 ) {
