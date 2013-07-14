@@ -11,40 +11,22 @@
 using namespace std;
 
 /* port for server to listen for connections */
-const uint16_t listen_port = 8080;
+const string listen_service = "8080";
 
 int main( void )
 {
   /* create TCP socket */
   Socket listener_socket;
 
-  /* make local address to listen on */
-  struct sockaddr_in listen_addr;
-  listen_addr.sin_family = AF_INET;
-  listen_addr.sin_port = htons( listen_port );
-  listen_addr.sin_addr.s_addr = INADDR_ANY;
-
-  /* bind the socket to listen_addr */
-  if ( bind( listener_socket.fd(),
-	     reinterpret_cast<const sockaddr *>( &listen_addr ),
-	     sizeof( listen_addr ) ) < 0 ) {
-    perror( "bind" );
-    exit( EXIT_FAILURE );
-  }
+  /* bind socket */
+  listener_socket.bind( listen_service );
 
   /* mark the socket for listening */
-  if ( listen( listener_socket.fd(), 1 ) < 0 ) {
-    perror( "listen" );
-    exit( EXIT_FAILURE );
-  }
+  listener_socket.listen();
 
   /* make new socket address for connection */
   struct sockaddr_in client_addr;
   socklen_t client_addr_size = sizeof( client_addr );
-
-  fprintf( stderr, "Listening on %s:%d...",
-	   inet_ntoa( listen_addr.sin_addr ),
-	   ntohs( listen_addr.sin_port ) );
 
   /* wait for client connection */
   int client_socket = accept( listener_socket.fd(),
@@ -63,7 +45,7 @@ int main( void )
   }
 
   /* we got a successful connection */
-  fprintf( stderr, " got connection from %s:%d.\n",
+  fprintf( stderr, "Got connection from %s:%d.\n",
 	   inet_ntoa( client_addr.sin_addr ),
 	   ntohs( client_addr.sin_port ) );
 

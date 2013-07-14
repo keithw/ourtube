@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <unistd.h>
+#include <string.h>
 
 class Exception
 {
@@ -13,6 +14,10 @@ private:
 public:
   Exception( const std::string s_attempt, const std::string s_error )
     : attempt_( s_attempt ), error_( s_error )
+  {}
+
+  Exception( const std::string s_attempt )
+    : attempt_( s_attempt ), error_( strerror( errno ) )
   {}
 
   void die( void )
