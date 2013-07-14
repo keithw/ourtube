@@ -1,10 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <string>
-
 #include "writeall.hh"
 #include "socket.hh"
 #include "exception.hh"
@@ -40,8 +33,6 @@ int main( void )
       }
       writeall( STDOUT_FILENO, buffer );
     }
-
-    fprintf( stderr, "Successful exit.\n" );
   } catch ( Exception &e ) {
     e.die();
   }
