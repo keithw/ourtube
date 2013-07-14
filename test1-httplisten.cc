@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <unistd.h>
 
 /* port for server to listen for connections */
 const uint16_t listen_port = 8080;
@@ -49,5 +50,68 @@ int main( void )
 			      reinterpret_cast<sockaddr *>( &client_addr ),
 			      &client_addr_size );
 
-  return client_socket;
+  if ( client_socket < 0 ) {
+    perror( "accept" );
+    exit( EXIT_FAILURE );
+  }
+
+  if ( client_addr_size != sizeof( client_addr ) ) {
+    fprintf( stderr, "ERROR, client_addr_size = %u, expected %lu.\n",
+	     client_addr_size, sizeof( client_addr ) );
+    exit( EXIT_FAILURE );
+  }
+
+  /* we got a successful connection */
+  fprintf( stderr, " got connection from %s:%d.\n",
+	   inet_ntoa( client_addr.sin_addr ),
+	   ntohs( client_addr.sin_port ) );
+
+  /* read the request from the client */
+  while ( 1 ) {
+    const size_t buffer_size = 4096;
+    char buffer[ buffer_size ];
+
+    ssize_t bytes_read = read( client_socket, &buffer, buffer_size );
+    if ( bytes_read == 0 ) {
+      /* end of file = client has closed their side of connection */
+      fprintf( stderr, "End of file, closing connection.\n" );
+      break;
+    } else if ( bytes_read < 0 ) {
+      perror( "read" );
+      break;
+    } else {
+      /* successful read */
+      /* write to the terminal */
+      ssize_t total_bytes_written = 0;
+
+      while ( total_bytes_written < bytes_read ) {
+	ssize_t bytes_written = write( STDOUT_FILENO,
+				       buffer + total_bytes_written,
+				       bytes_read - total_bytes_written );
+
+	if ( bytes_written < 0 ) {
+	  perror( "write" );
+	  exit( EXIT_FAILURE );
+	} else {
+	  total_bytes_written += bytes_written;
+	}
+      }
+    }
+  }
+
+  /* close client socket */
+  if ( close( client_socket ) < 0 ) {
+    perror( "close" );
+    exit( 0 );
+  }
+
+  /* close listen socket */
+  if ( close( listener_socket ) < 0 ) {
+    perror( "close" );
+    exit( 0 );
+  }
+
+  fprintf( stderr, "Successful exit.\n" );
+
+  return 0;
 }
