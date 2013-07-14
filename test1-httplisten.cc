@@ -1,4 +1,3 @@
-#include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
@@ -7,6 +6,7 @@
 #include <string>
 
 #include "writeall.hh"
+#include "socket.hh"
 
 using namespace std;
 
@@ -16,11 +16,7 @@ const uint16_t listen_port = 8080;
 int main( void )
 {
   /* create TCP socket */
-  int listener_socket = socket( AF_INET, SOCK_STREAM, 0 );
-  if ( listener_socket < 0 ) {
-    perror( "socket" );
-    exit( EXIT_FAILURE );
-  }
+  Socket listener_socket;
 
   /* make local address to listen on */
   struct sockaddr_in listen_addr;
@@ -29,7 +25,7 @@ int main( void )
   listen_addr.sin_addr.s_addr = INADDR_ANY;
 
   /* bind the socket to listen_addr */
-  if ( bind( listener_socket,
+  if ( bind( listener_socket.fd(),
 	     reinterpret_cast<const sockaddr *>( &listen_addr ),
 	     sizeof( listen_addr ) ) < 0 ) {
     perror( "bind" );
@@ -37,7 +33,7 @@ int main( void )
   }
 
   /* mark the socket for listening */
-  if ( listen( listener_socket, 1 ) < 0 ) {
+  if ( listen( listener_socket.fd(), 1 ) < 0 ) {
     perror( "listen" );
     exit( EXIT_FAILURE );
   }
@@ -51,7 +47,7 @@ int main( void )
 	   ntohs( listen_addr.sin_port ) );
 
   /* wait for client connection */
-  int client_socket = accept( listener_socket,
+  int client_socket = accept( listener_socket.fd(),
 			      reinterpret_cast<sockaddr *>( &client_addr ),
 			      &client_addr_size );
 
@@ -93,12 +89,6 @@ int main( void )
 
   /* close client socket */
   if ( close( client_socket ) < 0 ) {
-    perror( "close" );
-    exit( EXIT_FAILURE );
-  }
-
-  /* close listen socket */
-  if ( close( listener_socket ) < 0 ) {
     perror( "close" );
     exit( EXIT_FAILURE );
   }

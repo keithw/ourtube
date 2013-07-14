@@ -13,6 +13,8 @@
 ***** Write an HTTP client that fetches a resource from YouTube.
 ***** Standalone program.
 
+***** Cleanups.
+
 ***** Join the two together.
 
 **** Download all the resources that YouTube is using
