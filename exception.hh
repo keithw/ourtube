@@ -20,7 +20,7 @@ public:
     : attempt_( s_attempt ), error_( strerror( errno ) )
   {}
 
-  void die( void )
+  void die( void ) const
   {
     std::cerr << "Exception: " << attempt_ << ": " << error_ << std::endl;
     std::cerr << "Exiting on error.\n";
