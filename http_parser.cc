@@ -26,8 +26,10 @@ HTTPHeader::HTTPHeader( const string & buf )
   size_t first_nonspace = value_temp.find_first_not_of( " " );
   value_ = value_temp.substr( first_nonspace );
 
+  /*
   fprintf( stderr, "Got header. key=[[%s]] value = [[%s]]\n",
 	   key_.c_str(), value_.c_str() );
+  */
 }
 
 void HTTPRequestParser::parse( const string & buf )
@@ -43,7 +45,6 @@ void HTTPRequestParser::parse( const string & buf )
     size_t first_line_ending = internal_buffer_.find( crlf );
     if ( first_line_ending == std::string::npos ) {
       /* we don't have a full line yet */
-      fprintf( stderr, "No full line yet. All we have is: %s\n", internal_buffer_.c_str() );
       return;
     }
 

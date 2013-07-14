@@ -7,6 +7,7 @@
 #include "socket.hh"
 #include "exception.hh"
 #include "http_parser.hh"
+#include "http_handler.hh"
 
 using namespace std;
 
@@ -63,7 +64,9 @@ int main( void )
 	  throw Exception( "fork" );
 	} else if ( pid_of_child == 0 ) {
 	  /* we're the child */
-	  //	  handle_request( client_socket );
+	  HTTPHandler handler( client_socket );
+	  handler.handle_request();
+
 	  fprintf( stderr, "Child process %d exiting now.\n", getpid() );
 	  exit( EXIT_SUCCESS );
 	}
