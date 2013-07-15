@@ -1,6 +1,7 @@
 #include <poll.h>
 #include <sys/signalfd.h>
 #include <signal.h>
+#include <assert.h>
 
 #include "exception.hh"
 #include "http_handler.hh"
@@ -22,6 +23,26 @@ void HTTPHandler::handle_request( void )
     /* open connection to server */
     connect_to_server();
 
+    /* DEBUG ****************************************** */
+
+    fprintf( stderr, "Request to %s: %s\n",
+	     server_socket_.peer_addr().str().c_str(),
+	     parser_.request_line().c_str() );
+
+    fprintf( stderr, "Headers:" );
+
+    for ( const auto & header : parser_.headers() ) {
+      fprintf( stderr, " %s", header.key().c_str() );
+    }
+
+    fprintf( stderr, "\n" );
+
+    assert( parser_.request_line().substr( 0, 4 ) == "GET " );
+
+    parser_ = HTTPRequestParser();
+
+    /* DEBUG ****************************************** */
+
     /* write pending data from client to server */
     server_socket_.write( pending_client_to_server_ );
 
@@ -42,7 +63,8 @@ void HTTPHandler::read_request_up_to_host_header( void )
     pending_client_to_server_ += buffer;
 
     parser_.parse( buffer );
-    if ( parser_.has_header( "Host" ) || parser_.headers_parsed() ) {
+    //    if ( parser_.has_header( "Host" ) || parser_.headers_parsed() ) {
+    if ( parser_.headers_parsed() ) {
       /* found it */
       return;
     }
@@ -102,6 +124,29 @@ void HTTPHandler::two_way_connection( void )
       /* data available from client */
       /* send to server */
       string buffer = client_socket_.read();
+
+      parser_.parse( buffer );
+      if ( parser_.headers_parsed() ) {
+	/* DEBUG ****************************************** */
+
+	fprintf( stderr, "Request to %s: %s\n",
+		 server_socket_.peer_addr().str().c_str(),
+		 parser_.request_line().c_str() );
+
+	fprintf( stderr, "Headers:" );
+
+	for ( const auto & header : parser_.headers() ) {
+	  fprintf( stderr, " %s", header.key().c_str() );
+	}
+
+	fprintf( stderr, "\n" );
+
+	assert( parser_.request_line().substr( 0, 4 ) == "GET " );
+
+	parser_ = HTTPRequestParser();
+	/* DEBUG ****************************************** */
+      }
+
       if ( buffer.empty() ) {
 	client_eof_ = true;
       } else {

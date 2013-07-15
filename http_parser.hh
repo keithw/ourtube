@@ -37,6 +37,10 @@ public:
 
   std::string get_header_value( const std::string & header_name ) const;
   bool has_header( const std::string & header_name ) const;
+
+  const std::string & request_line( void ) const { return request_line_; }
+
+  const std::vector< HTTPHeader > & headers( void ) const { return headers_; }
 };
 
 #endif /* HTTP_PARSER_HH */
