@@ -8,6 +8,7 @@ class HTTPHandler
 {
 private:
   Socket client_socket_;
+  int signal_fd_;
 
   void read_request_up_to_host_header( void );
   void connect_to_server( void );
@@ -21,8 +22,9 @@ private:
   Socket server_socket_;
 
 public:
-  HTTPHandler( const Socket & s_socket )
+  HTTPHandler( const Socket & s_socket, const int s_signal_fd )
   : client_socket_( s_socket ),
+    signal_fd_( s_signal_fd ),
     parser_(),
     client_eof_( false ), server_eof_( false ),
     pending_client_to_server_(),

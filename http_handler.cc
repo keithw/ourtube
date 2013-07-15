@@ -1,4 +1,6 @@
 #include <poll.h>
+#include <sys/signalfd.h>
+#include <signal.h>
 
 #include "exception.hh"
 #include "http_handler.hh"
@@ -77,20 +79,22 @@ void HTTPHandler::connect_to_server( void )
 
 void HTTPHandler::two_way_connection( void )
 {
-  struct pollfd pollfds[ 2 ];
+  struct pollfd pollfds[ 3 ];
   pollfds[ 0 ].fd = client_socket_.raw_fd();
   pollfds[ 1 ].fd = server_socket_.raw_fd();
+  pollfds[ 2 ].fd = signal_fd_;
 
   while ( 1 ) {
-    if ( client_eof_ && server_eof_ ) {
+    if ( client_eof_ || server_eof_ ) {
       break;
     }
 
     pollfds[ 0 ].events = client_eof_ ? 0 : POLLIN;
     pollfds[ 1 ].events = server_eof_ ? 0 : POLLIN;
+    pollfds[ 2 ].events = POLLIN;
 
     /* wait for data in either direction */
-    if ( poll( pollfds, 2, -1 ) <= 0 ) {
+    if ( poll( pollfds, 3, -1 ) <= 0 ) {
       throw Exception( "poll" );
     }
 
@@ -117,8 +121,22 @@ void HTTPHandler::two_way_connection( void )
     }
 
     if ( (pollfds[ 0 ].revents & POLLERR)
-	 || (pollfds[ 1 ].revents & POLLERR) ) {
+	 || (pollfds[ 1 ].revents & POLLERR)
+	 || (pollfds[ 2 ].revents & POLLERR) ) {
       throw Exception( "poll error" );
+    }
+
+    if ( pollfds[ 2 ].revents & POLLIN ) {
+      signalfd_siginfo delivered_signal;
+
+      if ( read( signal_fd_, &delivered_signal, sizeof( signalfd_siginfo ) )
+	   != sizeof( signalfd_siginfo ) ) {
+	throw Exception( "read size mismatch" );
+      }
+
+      if ( delivered_signal.ssi_signo == SIGPIPE ) {
+	return;
+      }
     }
   }
 }

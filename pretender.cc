@@ -64,7 +64,7 @@ int main( void )
 	  throw Exception( "fork" );
 	} else if ( pid_of_child == 0 ) {
 	  /* we're the child */
-	  HTTPHandler handler( client_socket );
+	  HTTPHandler handler( client_socket, signal_fd );
 	  handler.handle_request();
 
 	  //	  fprintf( stderr, "Child process %d exiting now.\n", getpid() );
