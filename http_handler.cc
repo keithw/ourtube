@@ -12,18 +12,22 @@ void HTTPHandler::handle_request( void )
 {
   try {
     /* parse up to the host header */
-    read_request_up_to_host_header();
+    read_request();
 
     if ( !parser_.has_header( "Host" ) ) {
       /* there was no host header */
-      /* ignore request and close connection */
-      throw Exception( "HTTPHandler", "request is missing Host header" );
+      if ( !pending_client_to_server_.empty() ) {
+	throw Exception( "HTTPHandler request is missing Host header", pending_client_to_server_ );
+      } else {
+	/* quit quietly */
+	return;
+      }
     }
-
-    assert( parser_.headers_parsed() );
 
     /* open connection to server */
     connect_to_server();
+
+    assert( parser_.headers_parsed() );
 
     /* write pending data from client to server */
     server_socket_.write( pending_client_to_server_ );
@@ -35,7 +39,7 @@ void HTTPHandler::handle_request( void )
   }
 }
 
-void HTTPHandler::read_request_up_to_host_header( void )
+void HTTPHandler::read_request( void )
 {
   while ( 1 ) {
     string buffer = client_socket_.read();
@@ -44,8 +48,7 @@ void HTTPHandler::read_request_up_to_host_header( void )
     /* save this data for later replay to server */
     pending_client_to_server_ += buffer;
 
-    parser_.parse( buffer );
-    if ( parser_.headers_parsed() ) {
+    if ( parser_.parse( buffer ) ) {
       /* found it */
       return;
     }
@@ -110,6 +113,9 @@ void HTTPHandler::two_way_connection( void )
       } else {
 	server_socket_.write( buffer );
       }
+
+      /* parse body or header as appropriate */
+      parser_.parse( buffer );
     }
 
     if ( pollfds[ 1 ].revents & POLLIN ) {

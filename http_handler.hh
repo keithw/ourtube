@@ -10,7 +10,7 @@ private:
   Socket client_socket_;
   int signal_fd_;
 
-  void read_request_up_to_host_header( void );
+  void read_request( void );
   void connect_to_server( void );
   void two_way_connection( void );
 
@@ -21,6 +21,8 @@ private:
 
   Socket server_socket_;
 
+  size_t client_body_so_far_;
+
 public:
   HTTPHandler( const Socket & s_socket, const int s_signal_fd )
   : client_socket_( s_socket ),
@@ -28,7 +30,8 @@ public:
     parser_(),
     client_eof_( false ), server_eof_( false ),
     pending_client_to_server_(),
-    server_socket_()
+    server_socket_(),
+    client_body_so_far_( 0 )
   {}
 
   void handle_request( void );
