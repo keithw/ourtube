@@ -79,7 +79,6 @@ bool HTTPHeaderParser::parse( const string & buf )
       body_left_ = body_len();
       internal_buffer_.replace( 0, first_line_ending + crlf.size(), string() );
 
-      fprintf( stderr, "%s\n", request_line_.c_str() );
       return true;
     } else { /* it's a header */
       headers_.emplace_back( internal_buffer_.substr( 0, first_line_ending ) );

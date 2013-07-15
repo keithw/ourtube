@@ -50,6 +50,7 @@ void HTTPHandler::read_request( void )
 
     if ( parser_.parse( buffer ) ) {
       /* found it */
+      printf( "Got initial request: %s\n", parser_.request_line().c_str() );
       return;
     }
   }
@@ -115,7 +116,9 @@ void HTTPHandler::two_way_connection( void )
       }
 
       /* parse body or header as appropriate */
-      parser_.parse( buffer );
+      if ( parser_.parse( buffer ) ) {
+	printf( "Got continuation request: %s\n", parser_.request_line().c_str() );	
+      }
     }
 
     if ( pollfds[ 1 ].revents & POLLIN ) {
