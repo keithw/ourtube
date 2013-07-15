@@ -32,7 +32,7 @@ HTTPHeader::HTTPHeader( const string & buf )
   */
 }
 
-void HTTPRequestParser::parse( const string & buf )
+void HTTPHeaderParser::parse( const string & buf )
 {
   /* step 1: append buf to internal buffer */
   internal_buffer_ += buf;
@@ -64,7 +64,7 @@ void HTTPRequestParser::parse( const string & buf )
   }
 }
 
-bool HTTPRequestParser::has_header( const string & header_name ) const
+bool HTTPHeaderParser::has_header( const string & header_name ) const
 {
   for ( const auto & header : headers_ ) {
     if ( header.key() == header_name ) {
@@ -75,7 +75,7 @@ bool HTTPRequestParser::has_header( const string & header_name ) const
   return false;
 }
 
-string HTTPRequestParser::get_header_value( const string & header_name ) const
+string HTTPHeaderParser::get_header_value( const string & header_name ) const
 {
   for ( const auto & header : headers_ ) {
     if ( header.key() == header_name ) {
@@ -83,5 +83,5 @@ string HTTPRequestParser::get_header_value( const string & header_name ) const
     }
   }
 
-  throw Exception( "HTTPRequestParser header not found", header_name );
+  throw Exception( "HTTPHeaderParser header not found", header_name );
 }

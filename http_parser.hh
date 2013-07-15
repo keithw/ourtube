@@ -15,7 +15,7 @@ public:
   std::string value( void ) const { return value_; }
 };
 
-class HTTPRequestParser
+class HTTPHeaderParser
 {
 private:
   std::string internal_buffer_;
@@ -26,7 +26,7 @@ private:
   bool headers_finished_;
 
 public:
-  HTTPRequestParser() : internal_buffer_(),
+  HTTPHeaderParser() : internal_buffer_(),
 			request_line_(),
 			headers_(),
 			headers_finished_( false )

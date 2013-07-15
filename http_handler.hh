@@ -14,7 +14,7 @@ private:
   void connect_to_server( void );
   void two_way_connection( void );
 
-  HTTPRequestParser parser_;
+  HTTPHeaderParser parser_;
 
   bool client_eof_, server_eof_;
   std::string pending_client_to_server_;

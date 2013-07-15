@@ -27,7 +27,7 @@ int main( void )
     fprintf( stderr, "Got connection from %s.\n", client_socket.peer_addr().str().c_str() );
 
     /* construct HTTP request parser */
-    HTTPRequestParser parser;
+    HTTPHeaderParser parser;
 
     /* read the request from the client */
     string pending_client_to_server;

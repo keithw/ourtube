@@ -1,6 +1,7 @@
 #include <poll.h>
 #include <sys/signalfd.h>
 #include <signal.h>
+#include <assert.h>
 
 #include "exception.hh"
 #include "http_handler.hh"
@@ -16,8 +17,10 @@ void HTTPHandler::handle_request( void )
     if ( !parser_.has_header( "Host" ) ) {
       /* there was no host header */
       /* ignore request and close connection */
-      return;
+      throw Exception( "HTTPHandler", "request is missing Host header" );
     }
+
+    assert( parser_.headers_parsed() );
 
     /* open connection to server */
     connect_to_server();
@@ -42,7 +45,7 @@ void HTTPHandler::read_request_up_to_host_header( void )
     pending_client_to_server_ += buffer;
 
     parser_.parse( buffer );
-    if ( parser_.has_header( "Host" ) || parser_.headers_parsed() ) {
+    if ( parser_.headers_parsed() ) {
       /* found it */
       return;
     }
